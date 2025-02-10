@@ -7,8 +7,7 @@ public interface CategoryService {
     Response createCategory(CategoryDTO categoryDTO);
     Response getAllCategories( );
     Response getCategoryById(Long id);
-    Response updateCategory(CategoryDTO categoryDTO);
-    Response createCategory(Long id, CategoryDTO categoryDTO);
+    Response updateCategory(Long id, CategoryDTO categoryDTO);
     Response deleteCategory(Long id);
 
 

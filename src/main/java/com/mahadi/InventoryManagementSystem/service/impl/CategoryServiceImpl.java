@@ -3,12 +3,17 @@ package com.mahadi.InventoryManagementSystem.service.impl;
 import com.mahadi.InventoryManagementSystem.dto.CategoryDTO;
 import com.mahadi.InventoryManagementSystem.dto.Response;
 import com.mahadi.InventoryManagementSystem.entity.Category;
+import com.mahadi.InventoryManagementSystem.exceptions.NotFoundException;
 import com.mahadi.InventoryManagementSystem.repository.CategoryRepository;
 import com.mahadi.InventoryManagementSystem.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,26 +35,53 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Response getAllCategories() {
-        return null;
+        List<Category> categories = categoryRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+        List<CategoryDTO> categoryDTOS = modelMapper.map(categories, new TypeToken<List<CategoryDTO>>() {}.getType());
+
+        return Response.builder()
+                .status(200)
+                .message("Success")
+                .categoryList(categoryDTOS)
+                .build();
     }
 
     @Override
     public Response getCategoryById(Long id) {
-        return null;
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("category not found"));
+        CategoryDTO categoryDTO = modelMapper.map(category, CategoryDTO.class);
+
+        return Response.builder()
+                .status(200)
+                .message("data found")
+                .category(categoryDTO)
+                .build();
     }
 
     @Override
-    public Response updateCategory(CategoryDTO categoryDTO) {
-        return null;
-    }
+    public Response updateCategory(Long id, CategoryDTO categoryDTO) {
 
-    @Override
-    public Response createCategory(Long id, CategoryDTO categoryDTO) {
-        return null;
+        Category existingCategory = categoryRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("category not found"));
+        existingCategory.setCategoryName(categoryDTO.getCategoryName());
+
+        return Response.builder()
+                .status(200)
+                .message("category updated")
+                .build();
     }
 
     @Override
     public Response deleteCategory(Long id) {
-        return null;
+
+        categoryRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("category not found"));
+        categoryRepository.deleteById(id);
+
+         return Response.builder()
+                .status(200)
+                .message("category deleted")
+                .build();
     }
 }
